@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>noUiSlider 눈금 및 1분 단위 이동 + 색상 채우기</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            text-align: center;
+        }
+        #slider {
+            margin: 20px auto;
+            width: 100%;
+        }
+        .time-label {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        /* 슬라이더 색상 채우기 */
+        .noUi-connect {
+            background-color: #4CAF50; /* 채워질 색상 설정 */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>noUiSlider 눈금 및 1분 단위 이동 + 색상 채우기</h2>
+    <div id="slider"></div>
+    <p class="time-label">선택된 시간: <span id="timeValue">0</span>분</p>
+</div>
+
+<!-- noUiSlider 라이브러리 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.js"></script>
+
+<script>
+    var slider = document.getElementById('slider');
+    noUiSlider.create(slider, {
+        start: 0,
+        connect: [true, false], // 선택된 범위까지 색상 채우기
+        range: {
+            'min': 0,
+            'max': 120
+        },
+        step: 1, // 1분 단위로 이동
+        tooltips: true,
+        format: {
+            to: function (value) {
+                return Math.round(value) + '분';
+            },
+            from: function (value) {
+                return Number(value.replace('분', ''));
+            }
+        },
+        pips: { // 눈금 표시
+            mode: 'values',
+            values: [30, 60, 90], // 30분, 1시간, 1시간 30분 눈금
+            density: 4
+        }
+    });
+
+    // 슬라이더 값이 변경될 때마다 선택된 시간을 업데이트
+    slider.noUiSlider.on('update', function (values, handle) {
+        document.getElementById('timeValue').textContent = values[handle];
+    });
+</script>
+
+</body>
+</html>

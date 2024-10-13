@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/css/header.css">
+    <title>Check Your Schedule</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            font-size: 18px; /* 모든 글자 크기 키우기 */
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 36px; /* "Check Your Schedule" 글자 크기 키우기 */
+        }
+        .schedule-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 스케줄들을 중앙으로 정렬 */
+            margin-top: 50px; /* "Check Your Schedule"와 스케줄 간의 간격 */
+        }
+        .schedule {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px; /* 스케줄 간의 간격을 더 띄우기 */
+            margin-left: -30px; /* 스케줄을 왼쪽으로 당기기 */
+        }
+        .schedule h3 {
+            width: 150px;
+            text-align: right;
+            margin-right: 20px;
+            font-size: 24px; /* 스케줄 이름 크기 키우기 */
+        }
+        .date-box-container {
+            display: flex;
+        }
+        .date-box {
+            width: 40px; /* 박스 크기 조금 키우기 */
+            height: 40px;
+            margin: 5px;
+            background-color: red;
+            position: relative;
+        }
+        .date-box.checked {
+            background-color: green;
+        }
+        .date-box:hover::after {
+            content: attr(data-date);
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background-color: black;
+            color: white;
+            padding: 3px;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+        .task-group {
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 2px solid #000;
+        }
+        .schedule-item {
+            margin-bottom: 10px;
+        }
+        .button-group {
+            display: flex; /* 버튼을 가로로 나열 */
+            justify-content: center; /* 중앙 정렬 */
+        }
+
+        .button-group button {
+            width: 50px; /* 버튼의 너비 */
+            height: 50px; /* 버튼의 높이 */
+            border-radius: 50%; /* 원형 버튼 만들기 */
+            background-color: #4CAF50; /* 버튼 배경색 */
+            color: white; /* 글자 색상 */
+            border: none; /* 테두리 제거 */
+            font-size: 18px; /* 글자 크기 */
+            margin: 5px; /* 버튼 간 간격 */
+            cursor: pointer; /* 커서 모양 변경 */
+            transition: background-color 0.3s, transform 0.2s; /* 호버 효과 부드럽게 */
+        }
+
+        /* 호버 시 효과 */
+        .button-group button:hover {
+            background-color: #45a049; /* 호버 시 배경색 변화 */
+            transform: scale(1.1); /* 호버 시 버튼 크기 약간 확대 */
+        }
+
+        /* 클릭 시 효과 */
+        .button-group button:active {
+            transform: scale(0.95); /* 클릭 시 버튼 크기 약간 축소 */
+        }
+
+        .divider {
+            height: 2px;
+            background-color: #ccc; /* 구분선 색상 */
+            margin: 10px 0; /* 구분선 상하 여백 */
+        }
+
+        .improvement-button {
+            width: 100px; /* 버튼의 너비 */
+            height: 40px; /* 버튼의 높이 */
+            border-radius: 5px; /* 모서리 둥글게 */
+            background-color: #007BFF; /* 개선하기 버튼 배경색 */
+            color: white; /* 글자 색상 */
+            border: none; /* 테두리 제거 */
+            font-size: 16px; /* 글자 크기 */
+            margin-left: 20px; /* 유형과 버튼 간 간격 */
+            cursor: pointer; /* 커서 모양 변경 */
+            transition: background-color 0.3s, transform 0.2s; /* 호버 효과 부드럽게 */
+        }
+
+        /* 호버 시 개선하기 버튼 효과 */
+        .improvement-button:hover {
+            background-color: #0056b3; /* 호버 시 배경색 변화 */
+            transform: scale(1.05); /* 호버 시 버튼 크기 약간 확대 */
+        }
+
+        /* 클릭 시 개선하기 버튼 효과 */
+        .improvement-button:active {
+            transform: scale(0.95); /* 클릭 시 버튼 크기 약간 축소 */
+        }
+
+        .improvement-message {
+            margin-top: 10px;
+            font-size: 16px;
+            color: red; /* 메시지 색상 */
+        }
+
+        .button-group button:disabled {
+            background-color: #ccc; /* 비활성화된 버튼 색상 */
+            cursor: not-allowed; /* 비활성화된 버튼 커서 모양 변경 */
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- 헤더 부분은 유지 -->
+<div th:fragment="header">
+    <div class="header">
+        <h1>
+            <a th:href="@{/}" style="color: white; text-decoration: none;">Plan Optima</a>
+        </h1>
+        <div class="spacer"></div>
+        <ul class="menu">
+            <li><a th:href="@{/cabinet}">Cabinet</a></li>
+            <li><a href="/calendar">Calendar</a></li>
+            <li><a href="/check">Check</a></li>
+            <li><a href="#">About</a></li>
+        </ul>
+    </div>
+</div>
+<div id="headerLogout" class="logout-button">로그아웃</div>
+
+<h1>스케줄 목록</h1>
+
+<div id="schedule-container"></div>
+
+<script th:inline="javascript">
+    const schedules = [[${schedules}]];
+
+    const taskGroups = schedules.reduce((groups, schedule) => {
+        if (!groups[schedule.taskTypeName]) {
+            groups[schedule.taskTypeName] = [];
+        }
+        groups[schedule.taskTypeName].push(schedule);
+        return groups;
+    }, {});
+
+    const scheduleContainer = document.getElementById('schedule-container');
+
+    for (const [taskTypeName, group] of Object.entries(taskGroups)) {
+        const groupDiv = document.createElement('div');
+        groupDiv.classList.add('task-group');
+        groupDiv.innerHTML = `<h2>${taskTypeName}</h2>`;
+
+        let totalSchedules = group.length;
+        let selectedCount = 0;
+        let totalSelectedValue = 0;
+
+        group.forEach(schedule => {
+            const scheduleDiv = document.createElement('div');
+            scheduleDiv.classList.add('schedule-item');
+            scheduleDiv.innerHTML = `
+                <p>스케줄: ${schedule.name}</p>
+                <div class="button-group">
+                    <button value="1">버튼 1</button>
+                    <button value="2">버튼 2</button>
+                    <button value="3">버튼 3</button>
+                    <button value="4">버튼 4</button>
+                    <button value="5">버튼 5</button>
+                </div>
+            `;
+
+            const buttonGroup = scheduleDiv.querySelector('.button-group');
+            const buttons = buttonGroup.querySelectorAll('button');
+            let selectedValue = null;
+
+            buttons.forEach(button => {
+                button.onclick = () => {
+                    if (selectedValue === null) {
+                        selectedValue = parseInt(button.value);
+                        button.style.backgroundColor = 'red';
+                        button.disabled = true;
+                        selectedCount++;
+                        totalSelectedValue += selectedValue;
+                    } else {
+                        buttons.forEach(btn => {
+                            if (parseInt(btn.value) === selectedValue) {
+                                btn.style.backgroundColor = '';
+                                btn.disabled = false;
+                                selectedCount--;
+                                totalSelectedValue -= selectedValue;
+                            }
+                        });
+                        selectedValue = parseInt(button.value);
+                        button.style.backgroundColor = 'red';
+                        button.disabled = true;
+                        selectedCount++;
+                        totalSelectedValue += selectedValue;
+                    }
+
+                    const average = totalSelectedValue / selectedCount;
+                    console.log(`평균값: ${average}`);
+                };
+            });
+
+            groupDiv.appendChild(scheduleDiv);
+        });
+
+        const improvementButton = document.createElement('button');
+        improvementButton.className = "improvement-button";
+        improvementButton.innerText = "개선하기";
+        improvementButton.onclick = () => {
+            const existingMessage = groupDiv.querySelector('.improvement-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            if (totalSchedules < 3) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('improvement-message');
+                messageDiv.innerText = "스케줄이 3개 이상이어야 가능합니다.";
+                groupDiv.appendChild(messageDiv);
+                return;
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('improvement-message');
+
+            if (selectedCount === totalSchedules) {
+                messageDiv.innerText = "개선에 참여해주셔서 감사합니다!";
+                const averageValue = totalSelectedValue / selectedCount;
+                console.log(`보낼 평균값: ${averageValue}`);
+
+                fetch('/api/submitAverage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ average: averageValue })
+                }).then(response => response.json())
+                    .then(data => {
+                        console.log('성공적으로 전송되었습니다:', data);
+                    })
+                    .catch((error) => {
+                        console.error('전송 중 오류 발생:', error);
+                    });
+            } else {
+                messageDiv.innerText = "항목을 다 체크해주세요.";
+            }
+            groupDiv.appendChild(messageDiv);
+        };
+
+        groupDiv.appendChild(improvementButton);
+
+        const divider = document.createElement('div');
+        divider.classList.add('divider');
+        groupDiv.appendChild(divider);
+
+        scheduleContainer.appendChild(groupDiv);
+    }
+</script>
+
+</body>
+</html>

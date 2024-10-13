@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Optima</title>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <!-- CSS 파일 불러오기 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.css" rel="stylesheet">
+
+    <script src="/js/header.js" defer></script>
+</head>
+
+<body>
+<!-- 헤더 섹션 -->
+<div th:fragment="header">
+    <div class="header">
+        <h1>
+            <a th:href="@{/}" style="color: white; text-decoration: none;">Plan Optima</a>
+        </h1>
+        <div class="spacer"></div>
+        <ul class="menu">
+            <li><a th:href="@{/cabinet}">Cabinet</a></li>
+            <li><a href="/calendar">Calendar</a></li>
+            <li><a href="/check">Check</a></li>
+            <li><a href="#">About</a></li>
+        </ul>
+    </div>
+</div>
+<div id="headerLogout" class="logout-button">로그아웃</div>
+
+<div class="centered-text">
+    <h2>Plan Optima를 통해 <br> 나만의 효율적인 일정을 <br> 계획해 보세요</h2>
+</div>
+
+<div class="login-container">
+    <button id="toggleLogin" class="login-button">로그인</button>
+    <div id="welcomeMessage" class="welcome-box" style="display: none;"></div>
+</div>
+
+
+<div id="loginBanner" class="login-banner">
+    <form id="authForm" method="post">
+        <!-- 로그인 필드 -->
+        <div id="login-fields">
+            <div class="form-group">
+                <label for="username">아이디 :</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">비밀번호 :</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+        </div>
+        <!-- 회원가입 필드 -->
+        <div id="signup-fields" style="display: none;">
+            <div class="form-group">
+                <label for="signupName">이름 :</label>
+                <input type="text" id="signupName" name="name">
+            </div>
+        </div>
+        <!-- 버튼 컨테이너 -->
+        <div class="buttons-container">
+            <button type="button" id="loginButton">확인</button>
+            <button type="button" id="signupButton">회원가입</button>
+        </div>
+        <div id="message"></div>
+    </form>
+</div>
+
+<div class="animation-container">
+    <img id="myGif" src="image/index.gif" alt="Animation" class="animation">
+</div>
+
+<form th:action="@{/create}" method="post" class="form-container">
+    <!-- 폼 필드들 -->
+    <div class="form-group">
+        <label class="question-icon">작업 유형을 선택해주세요</label>
+        <div class="task-type-preference">
+            <div class="task-option" data-task="회의">회의</div>
+            <div class="task-option" data-task="학습">학습</div>
+            <div class="task-option" data-task="운동">운동</div>
+            <div class="task-option" data-task="보고서 작성">보고서 작성</div>
+            <div class="task-option" data-task="가사일">가사일</div>
+            <div class="task-option" data-task="창의적인 작업">창의적인 작업</div>
+        </div>
+        <input type="hidden" id="taskType" name="taskType" required>
+    </div>
+
+
+    <div class="form-group">
+        <label class="question-icon">스케줄명을 적어주세요</label>
+        <input type="text" id="name" name="name" autocomplete="off" required>
+    </div>
+
+    <!-- JavaScript 파일은 페이지 로드 후 실행되어야 하므로 <body> 끝에 넣습니다. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.js"></script>
+
+    <!-- 예상 소요시간 추가 -->
+    <div class="form-group">
+        <label class="question-icon">예상 소요시간을 선택해주세요</label>
+        <div class="container">
+            <div id="predictSlider"></div>
+            <p class="time-label">선택된 시간: <span id="timeValue">0</span></p>
+        </div>
+        <input type="hidden" id="estimatedTime" name="estimatedTime" required>
+    </div>
+
+
+<!--    <div class="form-group">-->
+<!--        <label class="question-icon">원하는 휴식시간 정도?</label>-->
+<!--        <div class="rest-time-preference">-->
+<!--            <div class="rest-option" data-time="30분">30분</div>-->
+<!--            <div class="rest-option" data-time="1시간">1시간</div>-->
+<!--            <div class="rest-option" data-time="1시간 30분">1시간 30분</div>-->
+<!--            <div class="rest-option" data-time="2시간">2시간</div>-->
+<!--        </div>-->
+<!--        <input type="hidden" id="restTime" name="restTime" required>-->
+<!--    </div>-->
+
+
+    <div class="slider-container">
+        <div class="slider-group">
+            <label for="difficulty">작업 난이도</label>
+            <input type="range" id="difficulty" name="difficulty" min="1" max="5" value="5">
+            <span id="difficultyValue">5</span>
+        </div>
+
+        <div class="slider-group">
+            <label for="stress">스트레스 수준</label>
+            <input type="range" id="stress" name="stress" min="1" max="5" value="5">
+            <span id="stressValue">5</span>
+        </div>
+
+        <div class="slider-group">
+            <label for="urgency">긴급도</label>
+            <input type="range" id="urgency" name="urgency" min="1" max="5" value="5">
+            <span id="urgencyValue">5</span>
+        </div>
+
+        <div class="slider-group">
+            <label for="importance">중요도</label>
+            <input type="range" id="importance" name="importance" min="1" max="5" value="5">
+            <span id="importanceValue">5</span>
+        </div>
+    </div>
+
+
+<!--    <div class="form-group">-->
+<!--        <label class="question-icon">작업 선호 시간대</label>-->
+<!--        <div class="time-preference">-->
+<!--            <div class="time-option" data-time="새벽">새벽</div>-->
+<!--            <div class="time-option" data-time="아침">아침</div>-->
+<!--            <div class="time-option" data-time="점심">점심</div>-->
+<!--            <div class="time-option" data-time="저녁">저녁</div>-->
+<!--            <div class="time-option" data-time="밤">밤</div>-->
+<!--        </div>-->
+<!--        <input type="hidden" id="preferenceTime" name="preferenceTime" required>-->
+<!--    </div>-->
+    <div>
+        <button type="submit" class="center-submit">제출</button>
+    </div>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="/js/index.js"></script>
+<script src="/js/timePreference.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script src="/js/auth.js"></script>
+</body>
+
+</html>

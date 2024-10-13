@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+    <link rel="stylesheet" href="/css/index.css">
+    <style>
+        /* 기존 스타일 유지 */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .recommendation-section {
+            background-color: #e0f7fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .recommendation-section p span {
+            font-weight: bold;
+            color: #108172;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="recommendation-section">
+        <p>
+            <span th:text="${schedule.getMember().getName()}" id="loginMember"></span> 님의 "<span th:text="${schedule.name}" id="scheduleName"></span>" 일정의
+        </p>
+        <p>예상 소요시간: <span th:text="${schedule.getEstimatedTime()}"></span> 분</p>
+        <p>Plan Optima 시간: "<span th:text="${adjustTime}"></span>" 분</p>
+    </div>
+
+    <form id="scheduleForm" th:action="@{/result_ts/{id}(id=${schedule.id})}" method="post">
+        <div class="form-group">
+            <label class="question-icon">원하는 휴식시간 정도?</label>
+            <div class="rest-time-preference">
+                <div class="rest-option" data-time="30분">30분</div>
+                <div class="rest-option" data-time="1시간">1시간</div>
+                <div class="rest-option" data-time="1시간 30분">1시간 30분</div>
+                <div class="rest-option" data-time="2시간">2시간</div>
+            </div>
+            <input type="hidden" id="restTime" name="restTime" required>
+        </div>
+
+        <div class="form-group">
+            <label class="question-icon">작업 선호 시간대</label>
+            <div class="time-preference">
+                <div class="time-option" data-time="새벽">새벽</div>
+                <div class="time-option" data-time="아침">아침</div>
+                <div class="time-option" data-time="점심">점심</div>
+                <div class="time-option" data-time="저녁">저녁</div>
+                <div class="time-option" data-time="밤">밤</div>
+            </div>
+            <input type="hidden" id="preferenceTime" name="preferenceTime" required>
+        </div>
+
+        <button type="button" id="selectDateButton">제출하기</button>
+    </form>
+</div>
+
+<!-- 자바스크립트를 body 끝 부분에 위치시켜 HTML 요소가 모두 로드된 후에 실행되도록 함 -->
+<script src="/js/timePreference.js"></script>
+</body>
+</html>

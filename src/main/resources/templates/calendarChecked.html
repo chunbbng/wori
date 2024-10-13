@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar Checked</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <style>
+        /* 기본 스타일 */
+        #calendar {
+            margin: 0 auto;
+            max-width: 900px;
+        }
+
+        .fc-daygrid-day {
+            cursor: pointer;
+        }
+
+        .fc-daygrid-day.fc-daygrid-day-highlight {
+            background-color: #fff9c4 !important; /* 연한 노랑색 */
+            border: 2px solid #ffab00 !important; /* 형광 주황색 테두리 */
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .save-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .side-label {
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>
+        <a th:href="@{/}" style="color: white; text-decoration: none;">Plan Optima</a>
+    </h1>
+    <div class="spacer"></div>
+    <ul class="menu">
+        <li><a href="#">Cabinet</a></li>
+        <li><a href="/calendar">Calendar</a></li>
+        <li><a href="#">Check</a></li>
+        <li><a href="#">About</a></li>
+    </ul>
+    <div id="headerLogout" class="logout-button" th:if="${session.memberId}">로그아웃</div>
+</div>
+
+<h1>선택된 일정 확인</h1>
+<div id='calendar'></div>
+
+<div class="button-container">
+    <button id="saveDates" class="save-button">저장 완료</button>
+</div>
+
+<!-- Hidden inputs to hold schedule data -->
+<input type="hidden" id="schedulesJson" th:value="${schedules}">
+<input type="hidden" id="checkedScheduleJson" th:value="${checkedSchedule}">
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const headerLogoutButton = document.getElementById("headerLogout");
+
+        if (!headerLogoutButton) {
+            console.error("로그아웃 버튼 요소가 로드되지 않았습니다.");
+            return;
+        }
+
+        // 로그아웃 버튼 클릭 시 처리
+        headerLogoutButton.addEventListener("click", function () {
+            // 로그아웃 요청을 보냅니다
+            fetch('/auth/logout', { method: 'POST' })
+                .then(() => {
+                    // 로그아웃 후 메인 페이지로 리디렉션
+                    window.location.href = "/"; // 또는 원하는 URL로 변경
+                })
+                .catch(error => {
+                    console.error("로그아웃 오류:", error);
+                });
+        });
+
+        // 항상 로그아웃 버튼 표시
+        headerLogoutButton.style.display = "block";
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const schedulesJson = /*[[${schedules}]]*/ '[]';
+        const checkedScheduleJson = /*[[${checkedSchedule}]]*/ '{}';
+
+        // JSON 데이터를 JavaScript 객체로 변환
+        const scheduleData = JSON.parse(schedulesJson);
+        const checkedData = JSON.parse(checkedScheduleJson);
+
+        // 랜덤 색상 생성 함수
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // FullCalendar 초기화
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: scheduleData.flatMap(dto => {
+                // 랜덤 색상 생성
+                const color = getRandomColor();
+
+                // selectedDates가 배열인지 확인
+                if (Array.isArray(dto.selectedDates)) {
+                    // 각 일정 객체를 FullCalendar 이벤트로 변환
+                    return dto.selectedDates.map(date => ({
+                        title: dto.title,
+                        start: date,
+                        end: date,
+                        color: color // 랜덤 색상 설정
+                    }));
+                } else {
+                    console.warn(`Expected selectedDates to be an array, but got ${typeof dto.selectedDates}`);
+                    return []; // 빈 배열 반환
+                }
+            })
+        });
+
+
+        // 캘린더 렌더링
+        calendar.render();
+
+        // 회색으로 처리할 이벤트를 추가
+        const checkedDates = checkedData.selectedDates || [];
+        calendar.getEvents().forEach(event => {
+            if (!checkedDates.includes(event.startStr)) {
+                event.setProp('color', 'gray'); // 회색으로 변경
+            }
+        });
+
+        // 저장 완료 버튼 클릭 시 calendar.html로 이동
+        document.getElementById('saveDates').addEventListener('click', function() {
+            window.location.href = '/calendar';
+        });
+    });
+</script>
+
+</body>
+</html>

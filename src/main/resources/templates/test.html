@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>반원 시간 선택 (문제 해결)</title>
+    <style>
+        .container {
+            width: 100%;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        /* 반원 경로 슬라이더 */
+        .path-slider {
+            width: 1000px;
+            height: 300px; /* SVG 높이를 늘려 곡선이 잘리거나 짧게 보이지 않도록 설정 */
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* 반원 경로 스타일 */
+        .path-slider svg {
+            stroke: #4CAF50;
+            stroke-width: 8;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        /* 핸들 스타일 */
+        .thumb {
+            width: 30px;
+            height: 30px;
+            background-color: #FFB74D;
+            clip-path: polygon(50% 0%, 90% 25%, 90% 75%, 50% 100%, 10% 75%, 10% 25%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        /* 시간 라벨 */
+        .time-label {
+            margin-top: 20px;
+            font-size: 1.4em;
+            color: #333;
+        }
+
+        /* 시간 마커 스타일 */
+        .time-marker {
+            font-size: 1em;
+            position: absolute;
+            color: #555;
+            background-color: #FFD54F;
+            border-radius: 50%;
+            padding: 5px 10px;
+        }
+
+        .time-markers {
+            position: absolute;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>반원 형태의 시간 선택 (문제 해결)</h2>
+    <div class="path-slider">
+        <svg width="1000" height="400"> <!-- 높이를 400으로 변경 -->
+            <!-- 반원 경로: 반원 하나당 30분, 총 4개의 반원으로 2시간 표시 -->
+            <path id="timePath" d="M20 200 A150 150 0 0 1 270 200 A150 150 0 0 0 520 200 A150 150 0 0 1 770 200 A150 150 0 0 0 1020 200" />
+        </svg>
+        <div id="thumb" class="thumb"></div>
+
+        <!-- 시간 마커 표시 -->
+        <div class="time-markers">
+            <div class="time-marker" style="top: 220px; left: 10px;">0분</div> <!-- 마커 위치 조정 -->
+            <div class="time-marker" style="top: 120px; left: 150px;">30분</div>
+            <div class="time-marker" style="top: 220px; left: 300px;">1시간</div>
+            <div class="time-marker" style="top: 120px; left: 450px;">1시간 30분</div>
+            <div class="time-marker" style="top: 220px; left: 600px;">2시간</div>
+            <div class="time-marker" style="top: 120px; left: 750px;">2시간 30분</div>
+            <div class="time-marker" style="top: 220px; left: 900px;">3시간</div>
+        </div>
+    </div>
+    <p class="time-label">선택된 시간: <span id="timeValue">0</span>분</p>
+</div>
+
+<script>
+    const thumb = document.getElementById('thumb');
+    const path = document.getElementById('timePath');
+    const timeValue = document.getElementById('timeValue');
+
+    // path의 총 길이를 계산
+    const pathLength = path.getTotalLength();
+    let isDragging = false; // 드래그 상태 확인용
+
+    // 마우스 다운(눌렀을 때) 이벤트 설정
+    thumb.addEventListener('mousedown', function() {
+        isDragging = true;
+    });
+
+    // 마우스 업(떼었을 때) 이벤트 설정
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+    });
+
+    // 마우스 이동 시 핸들 움직임 제어
+    document.addEventListener('mousemove', function(event) {
+        if (isDragging) {
+            const rect = path.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+
+            // x 값이 경로 범위 안에 있을 때만 실행
+            if (x >= 0 && x <= rect.width) {
+                // x 위치에 맞는 경로 상의 점을 찾음
+                const point = path.getPointAtLength((x / rect.width) * pathLength);
+                thumb.style.transform = `translate(${point.x}px, ${point.y}px)`; // 핸들 위치 설정
+
+                // 시간 업데이트 (0 ~ 120분 사이, 반원 하나당 30분)
+                const time = Math.round((x / rect.width) * 120);
+                timeValue.textContent = time;
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
